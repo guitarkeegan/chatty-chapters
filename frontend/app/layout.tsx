@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
 import { Antic_Didone, Chivo } from "next/font/google";
-import {cn} from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const antic = Antic_Didone({
-  weight: '400',
-  style: 'normal',
-  display: 'auto',
+  weight: "400",
+  style: "normal",
+  display: "auto",
   preload: true,
-  fallback: ['Arial', 'sans-serif'],
+  fallback: ["Arial", "sans-serif"],
   adjustFontFallback: true,
-  subsets: ['latin']
+  subsets: ["latin"],
 });
 
 const chivo = Chivo({
-  subsets: ['latin'],
-})
+  subsets: ["latin"],
+  fallback: ["Helvetica Neue", "Arial", "sans-serif"],
+  weight: "400",
+  style: "normal",
+});
 
 export const metadata: Metadata = {
   title: "Music Tutor",
@@ -29,11 +32,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(
-        "min-h-screen bg-background font-sans antialiased",
-        antic,
-        chivo,
-      )}>{children}</body>
+      <body
+        className={cn("min-h-screen bg-background antialiased", antic, chivo)}
+      >
+        {children}
+      </body>
     </html>
   );
 }
