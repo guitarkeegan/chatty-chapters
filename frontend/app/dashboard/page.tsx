@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import BookCard from "@/components/BookCard";
 
-type Book = {
+export type Book = {
   id: number;
   title: string;
 };
@@ -26,7 +27,7 @@ export default function Dashboard() {
       .then((data) => {
         if (data.error) {
           console.error(data.error);
-          // router.replace("/");
+          router.replace("/");
           return;
         }
         setBooks(data.books);
@@ -35,17 +36,14 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <section>
-      <h1>Books</h1>
+    <section className="flex flex-col justify-center items-center gap-12 py-12 ">
+      <h1 className="font-display text-4xl">Books</h1>
       {errMsg ? (
         <p>{errMsg}</p>
       ) : (
         books.length > 0 &&
         books.map((book, id) => (
-          <div key={id}>
-            <p>{book.id}</p>
-            <p>{book.title}</p>
-          </div>
+          <BookCard key={id} id={book.id} title={book.title} />
         ))
       )}
     </section>

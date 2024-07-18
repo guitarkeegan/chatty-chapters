@@ -1,11 +1,31 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/user/logged-in", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.logged_in) {
+          router.replace("/dashboard");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
   const router = useRouter();
 
@@ -30,7 +50,7 @@ export default function LoginForm() {
           return;
         }
         console.log(data);
-        //router.replace("dashboard");
+        router.replace("dashboard");
       })
       .catch((error) => {
         setErrorMsg("Error on Login: " + error);

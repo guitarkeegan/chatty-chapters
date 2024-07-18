@@ -32,9 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn("min-h-screen bg-background antialiased", antic, chivo)}
-      >
+      <body className={cn("min-h-screen bg-main antialiased", antic, chivo)}>
         {children}
       </body>
     </html>
