@@ -1,6 +1,5 @@
 import ChatUI from "@/components/ChatUI";
-
-export default function Chapters({
+export default function Listening({
   params,
 }: {
   params: { bookid: number; chapterid: number };

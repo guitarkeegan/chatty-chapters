@@ -10,7 +10,7 @@ export default function ChapterCard(props: ChapterCardProps) {
     <Link
       className="border border-black w-[200px] h-[120px] flex justify-center
       items-center hover:bg-focus transition-colors duration-200 ease-in-out"
-      href={`/dashboard/book/${props.bookid}/chapter/${props.id}`}
+      href={`/dashboard/book/${props.bookid}/chapter/${props.id}/activities`}
     >
       <div className="flex flex-col items-start p-4">
         <h2 className="font-display text-xl">

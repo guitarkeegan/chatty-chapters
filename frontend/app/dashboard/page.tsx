@@ -14,6 +14,8 @@ export default function Dashboard() {
 
   const router = useRouter();
 
+  // react query?
+  // https://tanstack.com/query/latest
   useEffect(() => {
     fetch("/api/books", {
       method: "GET",
