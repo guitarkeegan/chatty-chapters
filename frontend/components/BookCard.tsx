@@ -6,7 +6,7 @@ export default function BookCard(props: Book) {
     <Link
       className="border border-black w-[200px] h-[200px] flex justify-center
       items-center hover:bg-focus transition-colors duration-200 ease-in-out"
-      href={"/dashboard/book/activities"}
+      href={`/dashboard/book/${props.id}`}
     >
       <h2 className="font-body text-2xl">{props.title}</h2>
     </Link>
