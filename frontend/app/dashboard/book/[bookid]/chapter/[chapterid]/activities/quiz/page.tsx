@@ -1,7 +1,8 @@
+import QuizUI from "@/components/QuizUI";
 export default function Quiz({
   params,
 }: {
   params: { bookid: number; chapterid: number };
 }) {
-  return <h1>Quiz</h1>;
+  return <QuizUI bookid={params.bookid} chapterid={params.chapterid} />;
 }

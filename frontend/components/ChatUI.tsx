@@ -68,7 +68,7 @@ export default function ChatUI({
       } else {
         setAiStart(false);
       }
-      if (event.data === "\r\n\r\n") {
+      if (event.data === "\n\r\n\r") {
         setAiGenerating(false);
       }
       const message = event.data;
