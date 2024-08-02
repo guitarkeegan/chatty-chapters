@@ -21,7 +21,7 @@ export default function QuizUI({
 
   type QuizResponse = {
     quiz_id: number;
-    question_id: number;
+    quiz_question_id: number;
     student_response: string;
   };
 
@@ -30,6 +30,7 @@ export default function QuizUI({
   const [inputText, setInputText] = useState("");
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isQuizCompleted, setIsQuizComplete] = useState(false);
 
   useEffect(() => {
     fetch(`/api/quiz/take/book/${bookid}/chapter/${chapterid}`, {
@@ -45,6 +46,10 @@ export default function QuizUI({
         if (data.error) {
           console.error(data.error);
         }
+        if (data.quiz === "completed") {
+          console.log("quiz is done yo");
+          return;
+        }
         setQuestions(data.quiz);
       })
       .catch((error) => {
@@ -53,15 +58,19 @@ export default function QuizUI({
       });
   }, []);
 
-  const send = () => {
-    console.log(inputText);
+  useEffect(() => {
+    if (isQuizCompleted) {
+      submitQuiz(responses);
+    }
+  }, [isQuizCompleted, responses]);
 
+  const send = () => {
     if (questions && questions.length > 0) {
       // store response and go to next question
       const response: QuizResponse = {
         quiz_id: questions[currentQuestionIdx].quiz_id,
-        question_id: questions[currentQuestionIdx].id,
-        student_response: questions[currentQuestionIdx].quiz_question,
+        quiz_question_id: questions[currentQuestionIdx].id,
+        student_response: inputText.trim(),
       };
       setResponses((prev) => [...prev, response]);
       setCurrentQuestionIdx(currentQuestionIdx + 1);
@@ -70,19 +79,37 @@ export default function QuizUI({
     }
     // Check for end of quiz
     // send to api
-    if (currentQuestionIdx === questions.length) {
+    if (currentQuestionIdx === questions.length - 1) {
       console.log("quiz completed!");
-      // TODO: akually send the stuff
+      setIsQuizComplete(true);
       setCurrentQuestionIdx(currentQuestionIdx + 1);
     }
 
     setInputText("");
   };
 
+  const submitQuiz = (responses: QuizResponse[]) => {
+    console.log("submitting quiz...");
+    fetch(`/api/quiz/submit-answers/book/${bookid}/chapter/${chapterid}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(responses),
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
+  };
+
   const handleKeyPress = (e: any) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      send();
+      if (inputText) {
+        send();
+      }
     }
   };
 
@@ -99,7 +126,7 @@ export default function QuizUI({
           <div className="w-[10px] h-[10px] bg-black" />
           <div
             style={
-              currentQuestionIdx >= 1
+              currentQuestionIdx > 0
                 ? { backgroundColor: "black" }
                 : { backgroundColor: "white" }
             }
@@ -107,7 +134,7 @@ export default function QuizUI({
           />
           <div
             style={
-              currentQuestionIdx === 2
+              currentQuestionIdx > 1
                 ? { backgroundColor: "black" }
                 : { backgroundColor: "white" }
             }
