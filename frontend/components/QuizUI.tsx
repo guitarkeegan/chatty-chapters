@@ -46,8 +46,9 @@ export default function QuizUI({
         if (data.error) {
           console.error(data.error);
         }
-        if (data.quiz === "completed") {
+        if (data.status === "completed") {
           console.log("quiz is done yo");
+          console.log(data.quiz);
           return;
         }
         setQuestions(data.quiz);

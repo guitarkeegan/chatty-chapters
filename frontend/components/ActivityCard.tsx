@@ -7,26 +7,26 @@ export default function ActivityCard(props: Activies) {
 
   return (
     <>
-      {isQuizCompleted ? (
+      {/* {isQuizCompleted ? (
         <div className="border border-black w-[200px] h-[120px] flex justify-center items-center bg-gray-200 cursor-not-allowed">
           <div className="flex flex-col items-start p-4">
             <h2 className="font-display text-xl">{activity_type}</h2>
             <p className="font-body text-md">Completed</p>
           </div>
         </div>
-      ) : (
-        <Link
-          className="border border-black w-[200px] h-[120px] flex justify-center items-center hover:bg-focus transition-colors duration-200 ease-in-out"
-          href={`/dashboard/book/${book_id}/chapter/${chapter_id}/activities/${activity_type}`}
-        >
-          <div className="flex flex-col items-start p-4">
-            <h2 className="font-display text-xl">{activity_type}</h2>
-            <p className="font-body text-md">
-              {score > 0 ? "Completed" : "Start"}
-            </p>
-          </div>
-        </Link>
-      )}
+      ) : ( */}
+      <Link
+        className="border border-black w-[200px] h-[120px] flex justify-center items-center hover:bg-focus transition-colors duration-200 ease-in-out"
+        href={`/dashboard/book/${book_id}/chapter/${chapter_id}/activities/${activity_type}`}
+      >
+        <div className="flex flex-col items-start p-4">
+          <h2 className="font-display text-xl">{activity_type}</h2>
+          <p className="font-body text-md">
+            {score > 0 ? "Completed" : "Start"}
+          </p>
+        </div>
+      </Link>
+      {/* )} */}
     </>
   );
 }
