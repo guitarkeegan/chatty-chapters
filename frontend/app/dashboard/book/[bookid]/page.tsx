@@ -39,20 +39,22 @@ export default function Book({ params }: { params: { bookid: string } }) {
   return (
     <section className="flex flex-col justify-center items-center gap-12 py-12 ">
       <h1 className="font-display text-4xl">Chapters</h1>
-      {errMsg ? (
-        <p>{errMsg}</p>
-      ) : (
-        chapters.length > 0 &&
-        chapters.map((chapter, id) => (
-          <ChapterCard
-            key={id}
-            id={chapter.id}
-            title={chapter.title}
-            chapter_number={chapter.chapter_number}
-            bookid={params.bookid}
-          />
-        ))
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {errMsg ? (
+          <p>{errMsg}</p>
+        ) : (
+          chapters.length > 0 &&
+          chapters.map((chapter, id) => (
+            <ChapterCard
+              key={id}
+              id={chapter.id}
+              title={chapter.title}
+              chapter_number={chapter.chapter_number}
+              bookid={params.bookid}
+            />
+          ))
+        )}
+      </div>
     </section>
   );
 }

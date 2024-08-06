@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import BreadCrumbs from "@/components/BreadCrumbs";
 
 export default function Navbar() {
   const router = useRouter();
@@ -31,7 +32,11 @@ export default function Navbar() {
   }
 
   return (
-    <header className="bg-main py-12 px-12 flex justify-end items-center">
+    <header className="bg-main py-12 px-12 flex flex-row justify-between items-center">
+      {/* <button type="button" onClick={() => router.push("/")}>
+        Home
+      </button> */}
+      <BreadCrumbs />
       <DropdownMenu>
         <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
         <DropdownMenuContent>
