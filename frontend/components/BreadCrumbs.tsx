@@ -44,11 +44,54 @@ export default function BreadCrumbs() {
   const pathname = usePathname();
   const breadCrumbs = generateBreadCrumbs(pathname);
 
+  const isActive = (path: string, label: string) => {
+    const pathParts = pathname.split("/").filter(Boolean);
+    const breadcrumbParts = path.split("/").filter(Boolean);
+
+    // For dashboard
+    if (pathname === "/dashboard" && label === "Dashboard") {
+      return true;
+    }
+
+    // For book
+    if (
+      pathParts.length === 3 &&
+      pathParts[1] === "book" &&
+      label.startsWith("Book")
+    ) {
+      return true;
+    }
+
+    // For chapter
+    if (
+      pathParts.length === 5 &&
+      pathParts[3] === "chapter" &&
+      label.startsWith("Chapter")
+    ) {
+      return true;
+    }
+
+    // For activities or other pages
+    if (
+      pathParts.length > 5 &&
+      breadcrumbParts.length === pathParts.length &&
+      breadcrumbParts[breadcrumbParts.length - 1] ===
+        pathParts[pathParts.length - 1]
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
     <nav className="flex flex-row gap-2 items-center">
       {breadCrumbs.map((breadCrumb, index) => (
         <div key={index} className="flex items-center">
-          <Link key={index} href={breadCrumb.path} className="hover:underline">
+          <Link
+            href={breadCrumb.path}
+            className={`hover:underline ${isActive(breadCrumb.path, breadCrumb.label) ? "underline font-semibold" : ""}`}
+          >
             {breadCrumb.label}
           </Link>
           {index < breadCrumbs.length - 1 && (
