@@ -51,6 +51,10 @@ export default function QuizUI({
           console.log(data.quiz);
           return;
         }
+        if (data.status === "incomplete") {
+          console.log(data.message);
+          setErrorMsg(data.message);
+        }
         setQuestions(data.quiz);
       })
       .catch((error) => {
@@ -143,7 +147,7 @@ export default function QuizUI({
           />
         </div>
         <div className="font-body max-w-[260px] transition-all ease-in-out">
-          {questions.length > 0
+          {questions && questions.length > 0
             ? currentQuestionIdx > 2
               ? "Quiz Completed!"
               : questions[currentQuestionIdx].quiz_question
