@@ -9,7 +9,7 @@ export default function ChapterCard(props: ChapterCardProps) {
   return (
     <Link
       className="border border-black w-[200px] h-[120px] flex justify-start
-      items-start hover:bg-focus transition-colors duration-200 ease-in-out"
+      items-start hover:bg-focus transition-colors duration-200 ease-in-out text-ellipsis overflow-hidden"
       href={`/dashboard/book/${props.bookid}/chapter/${props.id}/activities`}
     >
       <div className="flex flex-col justify-start items-start p-4">
