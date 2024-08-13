@@ -54,6 +54,7 @@ export default function Activities({
       {errMsg ? (
         <p>{errMsg}</p>
       ) : (
+        activities &&
         activities.length > 0 &&
         activities.map((activity, id) => (
           <ActivityCard

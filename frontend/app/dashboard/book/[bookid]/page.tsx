@@ -43,6 +43,7 @@ export default function Book({ params }: { params: { bookid: string } }) {
         {errMsg ? (
           <p>{errMsg}</p>
         ) : (
+          chapters &&
           chapters.length > 0 &&
           chapters.map((chapter, id) => (
             <ChapterCard
