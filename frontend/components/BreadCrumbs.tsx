@@ -13,7 +13,7 @@ function generateBreadCrumbs(pathname: string) {
     if (paths[i] === "book") {
       // Combine "book" with the next number
       if (i + 1 < paths.length && !isNaN(Number(paths[i + 1]))) {
-        const label = `Book ${paths[i + 1]}`;
+        const label = `Book`;
         currentPath += `/${paths[i + 1]}`;
         breadCrumbs.push({ path: currentPath, label });
         i++; // Skip the next iteration (the number)
@@ -25,7 +25,7 @@ function generateBreadCrumbs(pathname: string) {
         !isNaN(Number(paths[i + 1])) &&
         paths[i + 2] === "activities"
       ) {
-        const label = `Chapter ${paths[i + 1]}`;
+        const label = `Chapter`;
         currentPath += `/${paths[i + 1]}/activities`;
         breadCrumbs.push({ path: currentPath, label });
         i += 2; // Skip the next two iterations (the number and "activities")
@@ -85,7 +85,7 @@ export default function BreadCrumbs() {
   };
 
   return (
-    <nav className="flex flex-row gap-2 items-center">
+    <nav className="flex flex-row flex-wrap gap-2 items-center">
       {breadCrumbs.map((breadCrumb, index) => (
         <div key={index} className="flex items-center">
           <Link
