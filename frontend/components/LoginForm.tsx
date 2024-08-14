@@ -2,33 +2,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginForm() {
+type LoginProps = {
+  signup: Function;
+};
+
+export default function LoginForm({ signup }: LoginProps) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [newPasswordVerify, setNewPasswordVerify] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [challenge, setChallenge] = useState<boolean>(false);
-
-  useEffect(() => {
-    fetch("/api/user/logged-in", {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.logged_in) {
-          router.replace("/dashboard");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
 
   const router = useRouter();
 
@@ -47,8 +31,8 @@ export default function LoginForm() {
       },
       body: JSON.stringify({
         username: email,
-        password,
-        NEW_PASSWORD: newPassword,
+        password: newPassword,
+        confirm_password: newPasswordVerify,
       }),
     })
       .then((response) => response.json())
@@ -58,7 +42,6 @@ export default function LoginForm() {
           return;
         }
         router.replace("dashboard");
-        console.log(data);
       })
       .catch((error) => {
         setErrorMsg("Error on Login: " + error);
@@ -81,12 +64,13 @@ export default function LoginForm() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.challenge.status === "NEW_PASSWORD_REQUIRED") {
-          setChallenge(true);
-          return;
-        }
         if (data.error) {
           setErrorMsg(data.error);
+          return;
+        }
+        if (data.challenge.status === "NEW_PASSWORD_REQUIRED") {
+          setChallenge(true);
+          setPassword("");
           return;
         }
         router.replace("dashboard");
@@ -104,18 +88,18 @@ export default function LoginForm() {
           className="flex flex-col gap-4 items-center border-black border pt-20 pb-12 px-4 font-body"
         >
           <p className="text-red-600">{errorMsg && errorMsg}</p>
-          <label htmlFor="password">new password</label>
+          <label htmlFor="new-password">new password</label>
           <input
             className="bg-main border border-black"
-            name="temp-password"
+            name="new-password"
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-          <label htmlFor="password">new password again</label>
+          <label htmlFor="new-password-verify">new password again</label>
           <input
             className="bg-main border border-black"
-            name="new-password"
+            name="new-password-verify"
             type="password"
             value={newPasswordVerify}
             onChange={(e) => setNewPasswordVerify(e.target.value)}
@@ -146,6 +130,13 @@ export default function LoginForm() {
           />
           <button className="px-4 mt-4 border border-black" type="submit">
             Enter
+          </button>
+          <button
+            className="px-4 mt-4 border border-black"
+            type="button"
+            onClick={() => signup(true)}
+          >
+            Signup
           </button>
         </form>
       )}
