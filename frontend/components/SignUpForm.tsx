@@ -23,8 +23,8 @@ export default function SignupForm({ login }: SignupFormProps) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         email,
       }),
     })
@@ -95,7 +95,7 @@ export default function SignupForm({ login }: SignupFormProps) {
             type="submit"
             onClick={() => login(false)}
           >
-            Sign-up
+            back to login
           </button>
         </div>
       )}

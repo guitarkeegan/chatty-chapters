@@ -31,8 +31,8 @@ export default function LoginForm({ signup }: LoginProps) {
       },
       body: JSON.stringify({
         username: email,
-        password,
-        NEW_PASSWORD: newPassword,
+        password: newPassword,
+        confirm_password: newPasswordVerify,
       }),
     })
       .then((response) => response.json())
@@ -42,7 +42,6 @@ export default function LoginForm({ signup }: LoginProps) {
           return;
         }
         router.replace("dashboard");
-        console.log(data);
       })
       .catch((error) => {
         setErrorMsg("Error on Login: " + error);
@@ -65,12 +64,13 @@ export default function LoginForm({ signup }: LoginProps) {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.challenge.status === "NEW_PASSWORD_REQUIRED") {
-          setChallenge(true);
-          return;
-        }
         if (data.error) {
           setErrorMsg(data.error);
+          return;
+        }
+        if (data.challenge.status === "NEW_PASSWORD_REQUIRED") {
+          setChallenge(true);
+          setPassword("");
           return;
         }
         router.replace("dashboard");
@@ -88,18 +88,18 @@ export default function LoginForm({ signup }: LoginProps) {
           className="flex flex-col gap-4 items-center border-black border pt-20 pb-12 px-4 font-body"
         >
           <p className="text-red-600">{errorMsg && errorMsg}</p>
-          <label htmlFor="password">new password</label>
+          <label htmlFor="new-password">new password</label>
           <input
             className="bg-main border border-black"
-            name="temp-password"
+            name="new-password"
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-          <label htmlFor="password">new password again</label>
+          <label htmlFor="new-password-verify">new password again</label>
           <input
             className="bg-main border border-black"
-            name="new-password"
+            name="new-password-verify"
             type="password"
             value={newPasswordVerify}
             onChange={(e) => setNewPasswordVerify(e.target.value)}
