@@ -22,7 +22,7 @@ export default function ActivityCard(props: Activies) {
         <div className="flex flex-col items-start p-4">
           <h2 className="font-display text-xl">{activity_type}</h2>
           <p className="font-body text-md">
-            {score > 0 ? "Completed" : "Start"}
+            {score > 0 ? "View Results" : "Start"}
           </p>
         </div>
       </Link>

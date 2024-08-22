@@ -31,6 +31,7 @@ export default function Activities({
     fetch(`/api/activities/book/${params.bookid}/chapter/${params.chapterid}`, {
       method: "GET",
       credentials: "include",
+      cache: "no-cache",
       headers: {
         Accept: "application/json",
         "Content-type": "application/json",

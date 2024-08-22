@@ -28,7 +28,10 @@ export default function Book({ params }: { params: { bookid: string } }) {
       .then((data) => {
         if (data.error) {
           console.error(data.error);
-          router.replace("/");
+          if (data.error === "invalid or missing authentication token") {
+            router.replace("/");
+            return;
+          }
           return;
         }
         setChapters(data.chapters);

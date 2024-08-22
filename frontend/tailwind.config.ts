@@ -30,6 +30,7 @@ const config = {
         foreground: "hsl(var(--foreground))",
         main: "var(--main)",
         focus: "var(--focus)",
+        attempted: "var(--color-attempted)",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
