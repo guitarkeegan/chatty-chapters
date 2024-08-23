@@ -197,7 +197,7 @@ export default function QuizUI({
                 : loading ? "loading" : "no questions"}
             </div>
           </div>
-          { currentQuestionIdx > 2 &&
+          { currentQuestionIdx <= 2 &&
           <div className="flex flex-row items-end max-w-[600px] w-full font-body px-2">
             <Textarea
               className="font-body"
