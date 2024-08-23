@@ -25,12 +25,25 @@ export default function QuizUI({
     student_response: string;
   };
 
+  type QuizFeedback = {
+    quiz_question: string;
+    quiz_response: string;
+    response_feedback: string;
+    score: number;
+  };
+
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [inputText, setInputText] = useState("");
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [isQuizCompleted, setIsQuizComplete] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  /**
+   * quiz result state
+   */
+  const [quizFeedback, setQuizFeedback] = useState<QuizFeedback[]>([]);
 
   useEffect(() => {
     fetch(`/api/quiz/take/book/${bookid}/chapter/${chapterid}`, {
@@ -47,14 +60,18 @@ export default function QuizUI({
           console.error(data.error);
         }
         if (data.status === "completed") {
-          console.log("quiz is done yo");
+          console.log("quiz is done");
           console.log(data.quiz);
+          setQuizFeedback(data.quiz);
+          setLoading(false);
           return;
         }
         if (data.status === "incomplete") {
           console.log(data.message);
           setErrorMsg(data.message);
         }
+
+        setLoading(false);
         setQuestions(data.quiz);
       })
       .catch((error) => {
@@ -124,50 +141,80 @@ export default function QuizUI({
 
   return (
     <section className="flex flex-col justify-between items-center">
-      <div className="h-[410px] flex flex-col gap-y-16 items-center">
-        <h1 className="font-display text-4xl">Quiz</h1>
-        {errorMsg && <div className="text-red-600">{errorMsg}</div>}
-        <div className="flex gap-4 justify-center">
-          <div className="w-[10px] h-[10px] bg-black" />
+      {quizFeedback.length > 0 ? (
+        quizFeedback.map((quizFBack, idx) => (
           <div
-            style={
-              currentQuestionIdx > 0
-                ? { backgroundColor: "black" }
-                : { backgroundColor: "white" }
-            }
-            className="w-[10px] h-[10px] transition-colors ease-in-out"
-          />
-          <div
-            style={
-              currentQuestionIdx > 1
-                ? { backgroundColor: "black" }
-                : { backgroundColor: "white" }
-            }
-            className="w-[10px] h-[10px] transition-colors ease-in-out"
-          />
-        </div>
-        <div className="font-body max-w-[260px] transition-all ease-in-out">
-          {questions && questions.length > 0
-            ? currentQuestionIdx > 2
-              ? "Quiz Completed!"
-              : questions[currentQuestionIdx].quiz_question
-            : "no questions"}
-        </div>
-      </div>
-      <div className="flex flex-row items-end max-w-[600px] w-full font-body px-2">
-        <Textarea
-          className="font-body"
-          id="textarea"
-          onChange={handleInputChange}
-          value={inputText}
-          onKeyUp={handleKeyPress}
-          placeholder="Type your message here."
-        />
-        <div className="px-1" />
-        <Button onClick={send} size="icon" className="">
-          <HiOutlinePaperAirplane className="h-4 w-4" />
-        </Button>
-      </div>
+            key={idx}
+            className="flex flex-col gap-y-2 sm:max-w-[600px] max-w-[300px] items-start border border-solid bg-focus p-4"
+          >
+            <p>
+              <span className="font-bold font-body">AI Question:</span>{" "}
+              {quizFBack.quiz_question}
+            </p>
+            <p>
+              <span className="font-bold font-body">Student Response:</span>{" "}
+              {quizFBack.quiz_response}
+            </p>
+            <p>
+              <span className="font-bold font-body">AI Feedback:</span>{" "}
+              {quizFBack.response_feedback}
+            </p>
+            <p>
+              <span className="font-bold font-body">Quiz Score:</span>{" "}
+              {quizFBack.score}
+            </p>
+          </div>
+        ))
+      ) : (
+        <>
+          <div className="h-[410px] flex flex-col gap-y-16 items-center">
+            <h1 className="font-display text-4xl">Quiz</h1>
+            {errorMsg && <div className="text-red-600">{errorMsg}</div>}
+            <div className="flex gap-4 justify-center">
+              <div className="w-[10px] h-[10px] bg-black" />
+              <div
+                style={
+                  currentQuestionIdx > 0
+                    ? { backgroundColor: "black" }
+                    : { backgroundColor: "white" }
+                }
+                className="w-[10px] h-[10px] transition-colors ease-in-out"
+              />
+              <div
+                style={
+                  currentQuestionIdx > 1
+                    ? { backgroundColor: "black" }
+                    : { backgroundColor: "white" }
+                }
+                className="w-[10px] h-[10px] transition-colors ease-in-out"
+              />
+            </div>
+            <div className="font-body max-w-[260px] transition-all ease-in-out">
+              {questions && questions.length > 0
+                ? currentQuestionIdx > 2
+                  ? "Quiz Completed!"
+                  : questions[currentQuestionIdx].quiz_question
+                : loading ? "loading" : "no questions"}
+            </div>
+          </div>
+          { currentQuestionIdx <= 2 &&
+          <div className="flex flex-row items-end max-w-[600px] w-full font-body px-2">
+            <Textarea
+              className="font-body"
+              id="textarea"
+              onChange={handleInputChange}
+              value={inputText}
+              onKeyUp={handleKeyPress}
+              placeholder="Type your message here."
+            />
+            <div className="px-1" />
+            <Button onClick={send} size="icon" className="">
+              <HiOutlinePaperAirplane className="h-4 w-4" />
+            </Button>
+          </div>
+}
+        </>
+      )}
     </section>
   );
 }

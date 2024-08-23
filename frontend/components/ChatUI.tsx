@@ -43,7 +43,11 @@ export default function ChatUI({
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
-          router.replace("/");
+          if (data.error === "invalid or missing authentication token") {
+            router.replace("/");
+            return;
+          }
+          console.error(data.error);
           return;
         }
       })
