@@ -43,12 +43,12 @@ export default function Navbar() {
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <button onClick={logout}>Logout</button>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
             <button onClick={() => router.push("/dashboard/my-progress")}>
               Course Progress
             </button>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <button onClick={logout}>Logout</button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
