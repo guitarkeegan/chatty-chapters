@@ -30,6 +30,10 @@ export default function SignupForm({ login }: SignupFormProps) {
     })
       .then((response) => response.json())
       .then((data) => {
+        if (data.error) {
+          setErrorMsg(data.error);
+          return;
+        }
         if (data.register.status === "SUCCESS") {
           setMsg(data.register.message);
           setSignedUp(true);
