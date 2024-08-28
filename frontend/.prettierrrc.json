@@ -1,13 +1,11 @@
 {
-    "$schema": "https://json.schemastore.org/prettierrc",
-    "singleQuote": false,
-    "trailingComma": "all",
-    "semi": true,
-    "proseWrap": "always",
-    "bracketSpacing": true,
-    "tabWidth": 4,
-    "printWidth": 100,
-    "plugins": [
-      "prettier-plugin-tailwindcss"
-    ]
-  }
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "singleQuote": false,
+  "trailingComma": "all",
+  "semi": true,
+  "proseWrap": "always",
+  "bracketSpacing": true,
+  "tabWidth": 4,
+  "printWidth": 100,
+  "plugins": ["prettier-plugin-tailwindcss"]
+}

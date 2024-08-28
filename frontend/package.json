@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "format": "prettier --write .",
+    "build": "NEXT_LINT=false next build",
     "start": "next start",
     "lint": "next lint"
   },

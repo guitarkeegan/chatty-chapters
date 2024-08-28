@@ -24,8 +24,9 @@ export default function Chat({
   params: { bookid: number; chapterid: number };
 }) {
   const [errMsg, setErrMsg] = useState<string>("");
-  const [chapterChatHistory, setChapterChatHistory] =
-    useState<ChapterChatHistory[]>([]);
+  const [chapterChatHistory, setChapterChatHistory] = useState<
+    ChapterChatHistory[]
+  >([]);
   const [chapterChatEval, setChapterChatEval] = useState<ChapterChatEval>();
   const [showResults, setShowResults] = useState<boolean>(true);
 
@@ -66,16 +67,19 @@ export default function Chat({
 
   const updateShowResults = () => {
     setShowResults(false);
-  }
+  };
 
   return (
     <>
-    { showResults
-    ?
-      <ChatResults history={chapterChatHistory} evaluation={chapterChatEval} update={updateShowResults} />
-      :
-      <ChatUI bookid={params.bookid} chapterid={params.chapterid} />
-    }
+      {showResults ? (
+        <ChatResults
+          history={chapterChatHistory}
+          evaluation={chapterChatEval}
+          update={updateShowResults}
+        />
+      ) : (
+        <ChatUI bookid={params.bookid} chapterid={params.chapterid} />
+      )}
     </>
   );
 }

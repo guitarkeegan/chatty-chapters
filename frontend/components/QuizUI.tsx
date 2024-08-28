@@ -194,25 +194,27 @@ export default function QuizUI({
                 ? currentQuestionIdx > 2
                   ? "Quiz Completed!"
                   : questions[currentQuestionIdx].quiz_question
-                : loading ? "loading" : "no questions"}
+                : loading
+                  ? "loading"
+                  : "no questions"}
             </div>
           </div>
-          { currentQuestionIdx <= 2 &&
-          <div className="flex flex-row items-end max-w-[600px] w-full font-body px-2">
-            <Textarea
-              className="font-body"
-              id="textarea"
-              onChange={handleInputChange}
-              value={inputText}
-              onKeyUp={handleKeyPress}
-              placeholder="Type your message here."
-            />
-            <div className="px-1" />
-            <Button onClick={send} size="icon" className="">
-              <HiOutlinePaperAirplane className="h-4 w-4" />
-            </Button>
-          </div>
-}
+          {currentQuestionIdx <= 2 && (
+            <div className="flex flex-row items-end max-w-[600px] w-full font-body px-2">
+              <Textarea
+                className="font-body"
+                id="textarea"
+                onChange={handleInputChange}
+                value={inputText}
+                onKeyUp={handleKeyPress}
+                placeholder="Type your message here."
+              />
+              <div className="px-1" />
+              <Button onClick={send} size="icon" className="">
+                <HiOutlinePaperAirplane className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </>
       )}
     </section>
