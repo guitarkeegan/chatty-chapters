@@ -26,9 +26,14 @@ export default function ChatUI({
   const [outputTexts, setOutputTexts] = useState<Participant[]>([]);
   const [currentAIResponse, setCurrentAIResponse] = useState<string>("");
   const websocketRef = useRef<WebSocket | null>(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
+  const initialBackoff = 500;
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiStart, setAiStart] = useState(false);
+  const wsUrl = `${process.env.NEXT_PUBLIC_WS_BASE_URL}/${bookid}/chapter/${chapterid}`;
 
+  const isConnected = useWebsocket(wsUrl);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,44 +61,74 @@ export default function ChatUI({
       });
   }, []);
 
-  useEffect(() => {
-    const wsUrl = `${process.env.NEXT_PUBLIC_WS_BASE_URL}/${bookid}/chapter/${chapterid}`;
-    const ws = new WebSocket(wsUrl);
-    websocketRef.current = ws;
+  function useWebsocket(url: string) {
+    const [isConnected, setIsConnected] = useState(false);
 
-    ws.onopen = () => {
-      console.log("WebSocket connection established");
-    };
+    useEffect(() => {
+      let timeoutId: NodeJS.Timeout;
 
-    ws.onmessage = (event) => {
-      setAiGenerating(true);
-      if (currentAIResponse.length === 0) {
-        setAiStart(true);
-      } else {
-        setAiStart(false);
+      function connect() {
+        websocketRef.current = new WebSocket(wsUrl);
+
+        websocketRef.current.onopen = () => {
+          console.log("WebSocket connection established");
+          setIsConnected(true);
+          reconnectAttempts.current = 0;
+        };
+
+        websocketRef.current.onmessage = (event) => {
+          setAiGenerating(true);
+          if (currentAIResponse.length === 0) {
+            setAiStart(true);
+          } else {
+            setAiStart(false);
+          }
+          if (event.data === "\n\r\n\r") {
+            setAiGenerating(false);
+          }
+          const message = event.data;
+          setCurrentAIResponse((prev) => prev + message);
+        };
+
+        websocketRef.current.onclose = (event) => {
+          console.log("WebSocket connection closed");
+
+          if (
+            !event.wasClean &&
+            reconnectAttempts.current < maxReconnectAttempts
+          ) {
+            const backoffTime =
+              initialBackoff * Math.pow(2, reconnectAttempts.current);
+            console.log(`Reconnecting in ${backoffTime / 1000} seconds...`);
+
+            timeoutId = setTimeout(() => {
+              reconnectAttempts.current += 1;
+              connect();
+            }, backoffTime);
+          } else {
+            console.error("max attempts exceeded, or clean close");
+            setIsConnected(false);
+          }
+        };
+
+        websocketRef.current.onerror = (error) => {
+          console.error("WebSocket error", error);
+        };
       }
-      if (event.data === "\n\r\n\r") {
-        setAiGenerating(false);
-      }
-      const message = event.data;
-      setCurrentAIResponse((prev) => prev + message);
-    };
 
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
+      connect();
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error", error);
-    };
+      // Cleanup on unmount
+      return () => {
+        if (websocketRef.current) {
+          websocketRef.current.close();
+        }
+        clearTimeout(timeoutId);
+      };
+    }, [wsUrl]);
 
-    // Cleanup on unmount
-    return () => {
-      if (ws) {
-        ws.close();
-      }
-    };
-  }, []);
+    return isConnected;
+  }
 
   useEffect(() => {
     if (currentAIResponse) {
@@ -134,48 +169,54 @@ export default function ChatUI({
 
   return (
     <section className="flex flex-col px-2 justify-between items-center">
-      <ScrollArea className="h-[410px] lg:h-[500px] text-lg font-body max-w-[600px]">
-        {outputTexts ? (
-          outputTexts.map((participant, i) =>
-            participant.role === "ai" && aiStart ? (
-              <div key={i} className="ai-bubble">
-                <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
+      {isConnected ? (
+        <ScrollArea className="h-[410px] lg:h-[500px] text-lg font-body max-w-[600px]">
+          {outputTexts ? (
+            outputTexts.map((participant, i) =>
+              participant.role === "ai" && aiStart ? (
+                <div key={i} className="ai-bubble">
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div className="ai">{participant.text}</div>
+                </div>
+              ) : participant.role === "ai" ? (
                 <div className="ai">{participant.text}</div>
-              </div>
-            ) : participant.role === "ai" ? (
-              <div className="ai">{participant.text}</div>
-            ) : (
-              <div key={i} className="user-bubble flex flex-col items-end">
-                <Avatar>
-                  {/* TODO: figure out user avitar situation */}
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="user font-body">{participant.text}</div>
-              </div>
-            ),
-          )
-        ) : (
-          <div>Start chat with AI assistant</div>
-        )}
-      </ScrollArea>
-      <div className="flex flex-row items-end max-w-[600px] w-full font-body">
-        <Textarea
-          className="font-body"
-          id="textarea"
-          onChange={handleInputChange}
-          value={inputText.text}
-          onKeyUp={handleKeyPress}
-          placeholder="Type your message here."
-        />
-        <div className="px-1" />
-        <Button onClick={send} size="icon" className="">
-          <HiOutlinePaperAirplane className="h-4 w-4" />
-        </Button>
-      </div>
+              ) : (
+                <div key={i} className="user-bubble flex flex-col items-end">
+                  <Avatar>
+                    {/* TODO: figure out user avitar situation */}
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div className="user font-body">{participant.text}</div>
+                </div>
+              ),
+            )
+          ) : (
+            <div>Start chat with AI assistant</div>
+          )}
+        </ScrollArea>
+      ) : (
+        <section>Unable to establish connection</section>
+      )}
+      {isConnected && (
+        <div className="flex flex-row items-end max-w-[600px] w-full font-body">
+          <Textarea
+            className="font-body"
+            id="textarea"
+            onChange={handleInputChange}
+            value={inputText.text}
+            onKeyUp={handleKeyPress}
+            placeholder="Type your message here."
+          />
+          <div className="px-1" />
+          <Button onClick={send} size="icon" className="">
+            <HiOutlinePaperAirplane className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </section>
   );
 }
