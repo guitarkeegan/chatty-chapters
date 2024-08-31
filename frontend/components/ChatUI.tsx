@@ -68,9 +68,8 @@ export default function ChatUI({
       let timeoutId: NodeJS.Timeout;
 
       function connect() {
-         websocketRef.current = new WebSocket(wsUrl);
-         // with credentials
-
+        websocketRef.current = new WebSocket(wsUrl);
+        // with credentials
 
         websocketRef.current.onopen = () => {
           console.log("WebSocket connection established");

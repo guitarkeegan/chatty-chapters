@@ -22,7 +22,8 @@ const chivo = Chivo({
 
 export const metadata: Metadata = {
   title: "Chatty Chapters",
-  description: "An app for students to chat with their textbook, take quizzes and more!",
+  description:
+    "An app for students to chat with their textbook, take quizzes and more!",
 };
 
 export default function RootLayout({
