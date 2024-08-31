@@ -68,7 +68,9 @@ export default function ChatUI({
       let timeoutId: NodeJS.Timeout;
 
       function connect() {
-        websocketRef.current = new WebSocket(wsUrl);
+         websocketRef.current = new WebSocket(wsUrl);
+         // with credentials
+
 
         websocketRef.current.onopen = () => {
           console.log("WebSocket connection established");
@@ -176,7 +178,7 @@ export default function ChatUI({
               participant.role === "ai" && aiStart ? (
                 <div key={i} className="ai-bubble">
                   <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarImage src="/ai_avatar_small.jpg" />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                   <div className="ai">{participant.text}</div>
@@ -187,7 +189,7 @@ export default function ChatUI({
                 <div key={i} className="user-bubble flex flex-col items-end">
                   <Avatar>
                     {/* TODO: figure out user avitar situation */}
-                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarImage src="/avatar_class_small.jpg" />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                   <div className="user font-body">{participant.text}</div>

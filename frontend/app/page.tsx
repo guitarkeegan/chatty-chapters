@@ -36,7 +36,7 @@ export default function Home() {
     <main>
       <section className="bg-main h-screen flex flex-col gap-24 justify-center items-center">
         <div>
-          <h2 className="font-display text-4xl text-center">Music Tutor</h2>
+          <h2 className="font-display text-4xl text-center">Chatty Chapters</h2>
         </div>
         <div>
           {!signUp ? (
