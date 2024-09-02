@@ -199,7 +199,7 @@ export default function QuizUI({
                   : "no questions"}
             </div>
           </div>
-          {currentQuestionIdx <= 2 && (
+          {currentQuestionIdx <= 2 && !errorMsg && (
             <div className="flex flex-row items-end max-w-[600px] w-full font-body px-2">
               <Textarea
                 className="font-body"
