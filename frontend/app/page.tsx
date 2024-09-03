@@ -3,6 +3,7 @@ import LoginForm from "@/components/LoginForm";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SignupForm from "@/components/SignUpForm";
+import Link from "next/link";
 
 export default function Home() {
   const [signUp, setSignUp] = useState<boolean>(false);
@@ -45,6 +46,7 @@ export default function Home() {
             <SignupForm login={getSignupForm} />
           )}
         </div>
+        <Link href="/forgot">forgot password</Link>
       </section>
     </main>
   );
