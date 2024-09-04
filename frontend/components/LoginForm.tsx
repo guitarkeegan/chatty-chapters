@@ -136,7 +136,7 @@ export default function LoginForm({ signup }: LoginProps) {
             type="button"
             onClick={() => signup(true)}
           >
-            Signup
+            Try Demo
           </button>
         </form>
       )}

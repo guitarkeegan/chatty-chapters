@@ -42,7 +42,7 @@ export default function ForgotPasswordUI() {
   return (
     <form
       onSubmit={resetPasswordHandler}
-      className="flex flex-col gap-4 items-center border-black border pt-20 pb-12 px-4 font-body"
+      className="flex flex-col gap-4 items-center border-black border pb-12 px-4 font-body"
     >
       <p className="text-red-600">{errorMsg && errorMsg}</p>
       <label htmlFor="username">username</label>

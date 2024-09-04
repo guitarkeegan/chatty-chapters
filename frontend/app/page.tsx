@@ -46,7 +46,7 @@ export default function Home() {
             <SignupForm login={getSignupForm} />
           )}
         </div>
-        <Link href="/forgot">forgot password</Link>
+        <Link href="/forgot">Forgot password?</Link>
       </section>
     </main>
   );

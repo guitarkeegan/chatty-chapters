@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 
 type SignupFormProps = {
   login: Function;
@@ -81,7 +80,7 @@ export default function SignupForm({ login }: SignupFormProps) {
             onChange={(e) => setEmail(e.target.value)}
           />
           <button className="px-4 mt-4 border border-black" type="submit">
-            Sign-up
+            Sign-in to Demo
           </button>
           <button
             className="px-4 mt-4 border border-black"

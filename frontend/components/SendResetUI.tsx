@@ -36,7 +36,7 @@ export default function SendResetUI() {
   return (
     <form
       onSubmit={sendReset}
-      className="flex flex-col gap-4 items-center border-black border pt-20 pb-12 px-4 font-body"
+      className="flex flex-col gap-4 items-center border-black border pt-12 pb-12 px-4 font-body"
     >
       <p className="text-red-600">{errorMsg && errorMsg}</p>
       <p className="text-green-600">{message && message}</p>

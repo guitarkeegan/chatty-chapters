@@ -9,7 +9,9 @@ export default function Forgot() {
   return (
     <section className="bg-main h-screen flex flex-col gap-24 justify-center items-center">
       <div>
-        <h2 className="font-display text-4xl text-center">Forgot Password</h2>
+        <h2 className="font-display text-4xl text-center pb-12">
+          Forgot Password
+        </h2>
         {reset ? <SendResetUI /> : <ForgotPasswordUI />}
       </div>
       <button onClick={() => setReset(false)}>Input confirmation code</button>
