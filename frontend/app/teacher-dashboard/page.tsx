@@ -28,7 +28,8 @@ const TeacherDashboardPage: React.FC = () => {
 
   return (
     <section className="flex flex-col justify-center items-center gap-12 py-12 ">
-      <h1 className="font-display text-4xl">My dashboardData</h1>
+      <h1 className="font-display text-4xl">Teacher Dashboard</h1>
+      <p className="text-red-600">{errorMsg && errorMsg}</p>
 
       {dashboardData ? (
         dashboardData.map((course, idx) => (
