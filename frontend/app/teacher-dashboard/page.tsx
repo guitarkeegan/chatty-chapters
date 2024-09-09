@@ -2,10 +2,14 @@
 import CourseCard from "@/components/CourseCard";
 import { CourseCardProps } from "@/components/CourseCard";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 const TeacherDashboardPage: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<CourseCardProps[]>();
   const [errorMsg, setErrorMsg] = useState<string>();
+  const router = useRouter();
+
+  const path = usePathname().split("/");
 
   useEffect(() => {
     fetch("/api/teacher/dashboard", {
@@ -18,7 +22,7 @@ const TeacherDashboardPage: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
-          setErrorMsg(data.error);
+          router.replace("/teacher-login");
           return;
         }
         setDashboardData(data.courses);
@@ -35,6 +39,7 @@ const TeacherDashboardPage: React.FC = () => {
         dashboardData.map((course, idx) => (
           <CourseCard
             key={idx}
+            path={path}
             course_id={course.course_id}
             course_title={course.course_title}
             semester={course.semester}
