@@ -1,5 +1,4 @@
 "use client";
-import { Suspense } from "react";
 import { HiOutlinePaperAirplane } from "react-icons/hi2";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,6 +61,7 @@ export default function QuizUI({
         if (data.status === "completed") {
           console.log("quiz is done");
           console.log(data.quiz);
+          localStorage.removeItem(`quiz${data.quiz[0].quiz_id}`);
           setQuizFeedback(data.quiz);
           setLoading(false);
           return;
@@ -73,6 +73,16 @@ export default function QuizUI({
 
         setLoading(false);
         setQuestions(data.quiz);
+        const quizId = data.quiz[0].quiz_id;
+        // get local storage
+        const storedResponses = localStorage.getItem(`quiz${quizId}`);
+        if (storedResponses) {
+          setResponses(JSON.parse(storedResponses));
+          setInputText(JSON.parse(storedResponses)[0].student_response);
+        } else {
+          // Initialize empty array in local storage if not exists
+          localStorage.setItem(`quiz${quizId}`, JSON.stringify([]));
+        }
       })
       .catch((error) => {
         // TODO: redirect to home
@@ -88,26 +98,57 @@ export default function QuizUI({
 
   const send = () => {
     if (questions && questions.length > 0) {
-      // store response and go to next question
+      const quizId = questions[currentQuestionIdx].quiz_id;
       const response: QuizResponse = {
-        quiz_id: questions[currentQuestionIdx].quiz_id,
+        quiz_id: quizId,
         quiz_question_id: questions[currentQuestionIdx].id,
         student_response: inputText.trim(),
       };
-      setResponses((prev) => [...prev, response]);
-      setCurrentQuestionIdx(currentQuestionIdx + 1);
+
+      setResponses((prev) => {
+        const existingResponses = [...prev];
+        const responseIndex = existingResponses.findIndex(
+          (res) => res.quiz_question_id === response.quiz_question_id,
+        );
+
+        // Update existing response if found, otherwise add a new one
+        if (responseIndex !== -1) {
+          existingResponses[responseIndex] = response;
+        } else {
+          existingResponses.push(response);
+        }
+
+        localStorage.setItem(
+          `quiz${quizId}`,
+          JSON.stringify(existingResponses),
+        );
+        return existingResponses;
+      });
+
+      setCurrentQuestionIdx((prevIdx) => prevIdx + 1);
+
+      // Check for end of quiz
+      if (currentQuestionIdx === questions.length - 1) {
+        console.log("quiz completed!");
+        setIsQuizComplete(true);
+        return;
+      }
+
+      const nextQuestion = localStorage.getItem(`quiz${quizId}`);
+      if (
+        nextQuestion &&
+        JSON.parse(nextQuestion).length > currentQuestionIdx + 1
+      ) {
+        setInputText(
+          JSON.parse(nextQuestion)[currentQuestionIdx + 1].student_response,
+        );
+        return;
+      }
+
+      setInputText("");
     } else {
       setErrorMsg("no quiz questions, tell Keegan he is lame");
     }
-    // Check for end of quiz
-    // send to api
-    if (currentQuestionIdx === questions.length - 1) {
-      console.log("quiz completed!");
-      setIsQuizComplete(true);
-      setCurrentQuestionIdx(currentQuestionIdx + 1);
-    }
-
-    setInputText("");
   };
 
   const submitQuiz = (responses: QuizResponse[]) => {
