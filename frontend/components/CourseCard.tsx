@@ -24,7 +24,7 @@ export default function CourseCard({
       items-center hover:bg-focus transition-colors duration-200 ease-in-out text-center"
       href={
         path
-          ? `/teacher-dashboard/course/${course_id}`
+          ? `/teacher-dashboard/course/${course_id}?book_id=${book_id}`
           : `/dashboard/my-progress/${book_id}`
       }
     >
