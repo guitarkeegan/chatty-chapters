@@ -1,5 +1,5 @@
 "use client";
-import { useSearchParams, useParams } from "next/navigation";
+import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import ResultsTable from "@/components/ResultsTable";
 
@@ -18,6 +18,7 @@ export default function Results() {
   const { chapter_id, course_id } = useParams();
   const [results, setResults] = useState<Result[]>([]);
   const [errMsg, setErrMsg] = useState<string>("");
+  const router = useRouter();
 
   useEffect(() => {
     fetch(`/api/teacher/course/chapter/results`, {
@@ -32,7 +33,12 @@ export default function Results() {
         course_id: Number(course_id),
       }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status == 401) {
+          router.replace("/dashboard");
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data.error) {
           setErrMsg(data.error);

@@ -19,12 +19,14 @@ const TeacherDashboardPage: React.FC = () => {
       },
       credentials: "include",
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          router.replace("/teacher-login");
-          return;
+      .then((res) => {
+        console.log(res.status);
+        if (res.status === 401) {
+          router.replace("/dashboard");
         }
+        return res.json();
+      })
+      .then((data) => {
         setDashboardData(data.courses);
       })
       .catch((error) => setErrorMsg(error));

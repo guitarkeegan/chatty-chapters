@@ -26,7 +26,12 @@ export default function TeacherCourse() {
       },
       credentials: "include",
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          router.replace("/dashboard");
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data.error) {
           router.replace("/teacher-login");
