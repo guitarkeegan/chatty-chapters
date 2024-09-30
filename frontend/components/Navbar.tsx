@@ -1,5 +1,6 @@
 "use client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,7 @@ import BreadCrumbs from "@/components/BreadCrumbs";
 
 export default function Navbar() {
   const router = useRouter();
+  const path = usePathname().split("/");
 
   function logout() {
     fetch("/api/user/logout", {
@@ -25,6 +27,10 @@ export default function Navbar() {
       .then((res) => res.json())
       .then((data) => {
         if (data.logout) {
+          if (path.includes("teacher-dashboard")) {
+            router.replace("/teacher-login");
+            return;
+          }
           router.replace("/");
         }
       })
@@ -36,17 +42,23 @@ export default function Navbar() {
       {/* <button type="button" onClick={() => router.push("/")}>
         Home
       </button> */}
-      <BreadCrumbs />
+      {!path.includes("teacher-dashboard") ? (
+        <BreadCrumbs />
+      ) : (
+        <Link href="/teacher-dashboard">Teacher Dashboard</Link>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <button onClick={() => router.push("/dashboard/my-progress")}>
-              Course Progress
-            </button>
-          </DropdownMenuItem>
+          {!path.includes("teacher-dashboard") && (
+            <DropdownMenuItem>
+              <button onClick={() => router.push("/dashboard/my-progress")}>
+                Course Progress
+              </button>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem>
             <button onClick={logout}>Logout</button>
           </DropdownMenuItem>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 export type CourseCardProps = {
+  path?: string[];
   course_id: number;
   course_title: string;
   semester: string;
@@ -9,6 +10,7 @@ export type CourseCardProps = {
 };
 
 export default function CourseCard({
+  path,
   course_id,
   course_title,
   semester,
@@ -20,7 +22,11 @@ export default function CourseCard({
     <Link
       className="border border-black w-[240px] h-[200px] flex justify-center flex-col
       items-center hover:bg-focus transition-colors duration-200 ease-in-out text-center"
-      href={`/dashboard/my-progress/${book_id}`}
+      href={
+        path
+          ? `/teacher-dashboard/course/${course_id}?book_id=${book_id}`
+          : `/dashboard/my-progress/${book_id}`
+      }
     >
       <h2 className="font-body text-2xl">Course: {course_title}</h2>
       <div className="flex flex-col">
