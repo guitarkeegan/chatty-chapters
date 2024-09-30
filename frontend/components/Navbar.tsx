@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   DropdownMenu,
@@ -9,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BreadCrumbs from "@/components/BreadCrumbs";
-import TeacherBreadCrumbs from "@/components/TeacherBreadCrumbs";
 
 export default function Navbar() {
   const router = useRouter();
@@ -45,7 +45,7 @@ export default function Navbar() {
       {!path.includes("teacher-dashboard") ? (
         <BreadCrumbs />
       ) : (
-        <TeacherBreadCrumbs />
+        <Link href="/teacher-dashboard">Teacher Dashboard</Link>
       )}
       <DropdownMenu>
         <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
