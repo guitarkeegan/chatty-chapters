@@ -25,6 +25,7 @@ type UserChapterResults = {
   quiz_questions: string[];
   quiz_answers: string[];
   quiz_feedback: string[];
+  chat_feedback: string[];
 };
 
 export default function Results() {
@@ -125,6 +126,19 @@ export default function Results() {
                         key={index}
                       >
                         {question}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Chat Feedback</h3>
+                  <ul>
+                    {studentResults?.chat_feedback.map((feedback, index) => (
+                      <li
+                        className="py-2 my-1 px-2 bg-focus rounded-md"
+                        key={index}
+                      >
+                        {feedback}
                       </li>
                     ))}
                   </ul>
