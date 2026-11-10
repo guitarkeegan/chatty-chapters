@@ -138,7 +138,7 @@ export default function LoginForm() {
             </button>
           ) : (
             <p className="font-display">
-              Send a request email to keegananglim@gmail.com
+              Contact your administrator for teacher access.
             </p>
           )}
         </form>
