@@ -1,0 +1,2 @@
+ALTER TABLE quiz_responses
+DROP CONSTRAINT unique_quiz_question_response;

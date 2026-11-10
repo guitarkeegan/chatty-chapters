@@ -1,0 +1,7 @@
+ALTER TABLE user_messages 
+ADD COLUMN book_id BIGINT NOT NULL,
+ADD CONSTRAINT fk_book_id FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE;
+
+ALTER TABLE user_messages 
+ADD COLUMN chapter_id BIGINT NOT NULL,
+ADD CONSTRAINT fk_chapter_id FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE;

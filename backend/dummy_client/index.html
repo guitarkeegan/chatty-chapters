@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+        #input {
+            width: calc(100% - 100px);
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="messages"></div>
+    <br>
+    <input type="text" id="input" placeholder="Type a message...">
+    <button id="send">Send</button>
+
+    <script>
+        // hardcoded book and chapter for history of jazz, chapter 2
+        const socket = new WebSocket('ws://localhost:8080/v1/chapters/chat/ws/1/2');
+        
+        const messagesDiv = document.getElementById('messages');
+        const input = document.getElementById('input');
+        const sendButton = document.getElementById('send');
+
+        let buffer = "";
+
+        // Handle incoming messages
+        socket.addEventListener('message', function (event) {
+
+            buffer += event.data;
+
+
+            if (buffer.endsWith('\n\r\n\r')) {
+                const completeMessage = buffer.trim();
+                buffer = '';
+                const message = document.createElement('div');
+                message.textContent = `Received: ${completeMessage}`;
+                messagesDiv.appendChild(message);
+            }
+
+        });
+
+        // Handle connection open event
+        socket.addEventListener('open', function (event) {
+            const message = document.createElement('div');
+            message.textContent = 'Connection opened';
+            messagesDiv.appendChild(message);
+        });
+
+        // Handle connection close event
+        socket.addEventListener('close', function (event) {
+            const message = document.createElement('div');
+            message.textContent = 'Connection closed';
+            messagesDiv.appendChild(message);
+        });
+
+        // Handle connection error event
+        socket.addEventListener('error', function (event) {
+            const message = document.createElement('div');
+            message.textContent = `Error: ${event.message}`;
+            messagesDiv.appendChild(message);
+        });
+
+        // Send message when button is clicked
+        sendButton.addEventListener('click', function () {
+            const message = input.value;
+            socket.send(message);
+            const sentMessage = document.createElement('div');
+            sentMessage.textContent = `Sent: ${message}`;
+            messagesDiv.appendChild(sentMessage);
+            input.value = '';
+        });
+    </script>
+</body>
+</html>

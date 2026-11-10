@@ -1,0 +1,15 @@
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE IF NOT EXISTS users (
+    id BIGSERIAL PRIMARY KEY,
+    cognito_sub UUID NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email CITEXT NOT NULL UNIQUE,
+    books TEXT[] NOT NULL,
+    version INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE INDEX idx_users_cognito_sub ON users(cognito_sub);

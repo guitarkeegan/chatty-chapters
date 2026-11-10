@@ -1,0 +1,24 @@
+{
+  email you@example.com
+  debug
+}
+
+api.example.com {
+
+# Proxy all requests, including WebSocket
+
+  reverse_proxy localhost:8080 {
+    header_up Host {host}
+    header_up X-Real-IP {remote_host}
+    header_up X-Forwarded-For {remote_host}
+    header_up X-Forwarded-Proto {scheme}
+    header_up Cookie {http.request.header.Cookie}
+    # Ensure WebSocket headers are passed through
+    header_up Connection {http.request.header.Connection}
+    header_up Upgrade {http.request.header.Upgrade}
+  }
+
+  # Specific responses for certain routes
+  respond /v1/metrics "Not Permitted" 403
+  respond /v1/register/users "Not Permitted" 403
+}
