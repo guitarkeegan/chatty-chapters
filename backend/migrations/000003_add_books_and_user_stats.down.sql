@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS user_activities;
+DROP TABLE IF EXISTS chapters;
+DROP TABLE IF EXISTS books;

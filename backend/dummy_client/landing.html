@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <div id="login-form">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div id="new-password-form" style="display:none;">
+        <h2>Set New Password</h2>
+        <form id="newPasswordForm">
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required>
+            <br>
+            <button type="submit">Submit New Password</button>
+        </form>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const newPasswordForm = document.getElementById('newPasswordForm');
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:8080/v1/login', {
+                method: 'POST',
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            if (data.challenge.status === 'NEW_PASSWORD_REQUIRED') {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('new-password-form').style.display = 'block';
+            } else if (data.challenge.status === 'SUCCESS') {
+                alert('Login successful!');
+                // Handle successful login
+                console.log(data);
+            } else {
+                alert('Login failed!');
+                // Handle login error
+                console.log(data);
+            }
+        });
+
+        newPasswordForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const tempPassword = document.getElementById('password').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            const response = await fetch('http://localhost:8080/v1/new-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: "include",
+                body: JSON.stringify({ username, tempPassword, "NEW_PASSWORD": newPassword })
+            });
+
+            const data = await response.json();
+            if (data.challenge.status === 'SUCCESS') {
+                alert('Password changed and login successful!');
+                // Handle successful password change and login
+                console.log(data);
+            } else {
+                alert('Password change failed!');
+                // Handle error
+            }
+        });
+    </script>
+</body>
+</html>
