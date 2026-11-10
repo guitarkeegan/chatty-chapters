@@ -1,3 +1,5 @@
+//go:build integration
+
 package main
 
 import (
@@ -29,7 +31,7 @@ func mockAuthApp() (*application, error) {
 		models: data.Models{},
 		ai:     &ai.Ai{},
 		auth: &authProvider{
-			cognitoClient: initializeCognito(),
+			cognitoClient: initializeCognito(cognitoRegion),
 			userPoolID:    userPoolID,
 			clientID:      clientID,
 			cognitoRegion: cognitoRegion,

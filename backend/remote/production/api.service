@@ -20,7 +20,7 @@ User=ubuntu
 Group=ubuntu
 EnvironmentFile=/etc/environment
 WorkingDirectory=/home/ubuntu
-ExecStart=/home/ubuntu/api -port=8080 -db-dsn=${MUSIC_DB_DSN} -env=production -cors-trusted-origins="https://example.com https://api.example.com" -user_pool_id=${USER_POOL_ID} -cognito_client_id=${USER_POOL_CLIENT_ID}
+ExecStart=/home/ubuntu/api -port=8080 -db-dsn=${MUSIC_DB_DSN} -env=production -cookie-domain=example.com -cors-trusted-origins="https://example.com https://api.example.com" -user_pool_id=${USER_POOL_ID} -cognito_client_id=${USER_POOL_CLIENT_ID}
 
 # Automatically restart the service after a 5-second wait if it exits with a non-zero 
 # exit code. If it restarts more than 5 times in 600 seconds, then the rate limit we

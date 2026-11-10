@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"expvar"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"log/slog"
 	"net/http"
@@ -49,9 +51,9 @@ type authProvider struct {
 	// TODO: create seperate structure for caching here. time create. expires at. anything else...
 }
 
-func initializeCognito() *cognitoidentityprovider.CognitoIdentityProvider {
+func initializeCognito(region string) *cognitoidentityprovider.CognitoIdentityProvider {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-1"),
+		Region: aws.String(region),
 	})
 	if err != nil {
 		log.Fatalf("Failed to initialize AWS session: %v", err)
@@ -65,13 +67,22 @@ func initializeCognito() *cognitoidentityprovider.CognitoIdentityProvider {
 	return cognitoClient
 }
 
+// envOr returns the value of the environment variable key, or fallback if it is unset
+func envOr(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 var version = "1.0.0"
 var wsConnectionCount int32
 
 type config struct {
-	port int
-	env  string
-	db   struct {
+	port         int
+	env          string
+	cookieDomain string
+	db           struct {
 		dsn string
 	}
 	cors struct {
@@ -107,18 +118,19 @@ func main() {
 	var userPoolID string
 	var clientID string
 
-	err := godotenv.Load()
-	if err != nil {
+	// a .env file is optional, variables may come from the environment instead
+	if err := godotenv.Load(); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		log.Fatalf("error on env load: %q", err)
 	}
 
 	flag.IntVar(&cfg.port, "port", 8080, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "development|staging|production")
+	flag.StringVar(&cfg.cookieDomain, "cookie-domain", os.Getenv("COOKIE_DOMAIN"), "domain for auth cookies in production, e.g. example.com")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DNS_CONN_DEV"), "db connect string")
 	flag.BoolVar(&seedEmbeddings, "seed_embeddings", false, "seed db with book embeddings")
-	flag.BoolVar(&seedAll, "seed_all", false, "seed db with users, books, chapters, user-activites")
+	flag.BoolVar(&seedAll, "seed_all", false, "seed db with users, books, chapters, user-activities")
 	flag.BoolVar(&clearAllUserProgress, "clear_all_user_progress", false, "clear all user related data")
-	flag.StringVar(&cognitoRegion, "cognito_region", "us-west-1", "set aws cognito region")
+	flag.StringVar(&cognitoRegion, "cognito_region", envOr("AWS_REGION", "us-west-1"), "set aws cognito region")
 	flag.StringVar(&userPoolID, "user_pool_id", os.Getenv("USER_POOL_ID"), "set user pool id")
 	flag.StringVar(&clientID, "cognito_client_id", os.Getenv("USER_POOL_CLIENT_ID"), "set user pool client id")
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
@@ -140,7 +152,7 @@ func main() {
 
 	fmt.Println(cfg.cors.trustedOrigins)
 
-	cognitoClient := initializeCognito()
+	cognitoClient := initializeCognito(cognitoRegion)
 
 	auth := &authProvider{
 		cognitoClient: cognitoClient,
@@ -164,7 +176,7 @@ func main() {
 	}))
 
 	if seedEmbeddings {
-		err := seed.SeedBookEmbeddings(db)
+		err := seed.SeedBookEmbeddings(db, os.Getenv("OPENAI"))
 		if err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)
@@ -185,6 +197,11 @@ func main() {
 			logger.Error(err.Error())
 			os.Exit(1)
 		}
+	}
+
+	// the seed and clear flags are one off tasks, so don't start the server
+	if seedEmbeddings || seedAll || clearAllUserProgress {
+		return
 	}
 
 	ai, err := ai.New(os.Getenv("OPENAI"), cfg.env, db)

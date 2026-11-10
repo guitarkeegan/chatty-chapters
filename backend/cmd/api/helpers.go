@@ -156,45 +156,9 @@ func (app *application) sendIDAndRefreshToClient(w http.ResponseWriter, status i
 		http.Error(w, "Authentication result is missing required tokens", http.StatusInternalServerError)
 		return
 	}
-	env := app.config.env
-	var sameSite http.SameSite
-	var secure bool
-	var httpOnly bool
-	var domain string
-	if env == "production" {
-		secure = true
-		httpOnly = true
-		sameSite = http.SameSiteNoneMode
-		domain = "example.com"
-	} else {
-		sameSite = http.SameSiteLaxMode
-		// set domain to anything?
-	}
-	dbg("secure: %s", secure)
-	dbg("httpOnly: %s", secure)
-	// set cookies for ID and refresh
-	http.SetCookie(w, &http.Cookie{
-		Name:     "music-id",
-		Value:    *authResult.IdToken,
-		Domain:   domain,
-		Path:     "/",
-		Expires:  time.Now().Add(1 * time.Hour), // ID tokens typically expire after 1 hour
-		Secure:   secure,
-		HttpOnly: httpOnly,
-		SameSite: sameSite,
-	})
-
-	// refresh
-	http.SetCookie(w, &http.Cookie{
-		Name:     "music-refresh",
-		Value:    *authResult.RefreshToken,
-		Domain:   domain,
-		Path:     "/",
-		Expires:  time.Now().Add(30 * 24 * time.Hour), // Refresh tokens typically last 30 days
-		Secure:   secure,
-		HttpOnly: httpOnly,
-		SameSite: sameSite,
-	})
+	// ID tokens typically expire after 1 hour, refresh tokens after 30 days
+	app.setAuthCookie(w, idCookieName, *authResult.IdToken, time.Now().Add(1*time.Hour))
+	app.setAuthCookie(w, refreshCookieName, *authResult.RefreshToken, time.Now().Add(30*24*time.Hour))
 	app.writeJSON(w, status, data, nil)
 }
 

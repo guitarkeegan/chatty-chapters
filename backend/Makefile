@@ -19,7 +19,7 @@ run/api:
 confirm:
 	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
 
-## run/front: run the application with coors rules relaxed
+## run/front: run the application with cors rules relaxed
 .PHONY: run/front
 run/front:
 	go run ./cmd/api/ -cors-trusted-origins="http://localhost:3000 http://localhost:8081 https://localhost:3000 https://localhost:8081"
@@ -30,10 +30,26 @@ client/cert:
 	openssl req -x509 -newkey rsa:2048 -nodes -days 365 -subj '/CN=localhost' \
 		-keyout dummy_client/key.pem -out dummy_client/cert.pem
 
-## client/run: serve the dummy client at https://localhost:4443
+## client/run: serve the dummy client over https on port 4443
 .PHONY: client/run
 client/run:
 	cd dummy_client && python3 server.py
+
+## up: start postgres (with pgvector) in docker and run the migrations
+.PHONY: up
+up:
+	docker compose up -d db
+	docker compose run --rm migrate
+
+## down: stop postgres
+.PHONY: down
+down:
+	docker compose down
+
+## seed: seed the demo users, books, and courses, then embed the books (uses OpenAI)
+.PHONY: seed
+seed:
+	go run ./cmd/api -seed_all=true -seed_embeddings=true
 
 ## db/connect: connect to db
 .PHONY: db/connect
@@ -68,6 +84,16 @@ migration/create:
 # ==================================================================================== #
 # QUALITY CONTROL
 # ==================================================================================== #
+
+## test: run the unit tests
+.PHONY: test
+test:
+	go test -race ./...
+
+## test/integration: run all tests, including those that need postgres, openai, cognito, and canvas
+.PHONY: test/integration
+test/integration:
+	go test -race -tags integration ./...
 
 ## audit: tidy dependencies and format, vet and test all code
 .PHONY: audit

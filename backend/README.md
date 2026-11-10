@@ -1,114 +1,117 @@
-# Music Tutor
+# Music Class Tutor
 
-## Description
+An AI reading tutor for college music courses. Students pick the chapter they're
+reading and chat with a tutor that answers from the textbook itself. Once they've
+asked good enough questions, they take a short quiz generated from their own
+conversation. Teachers get a dashboard of every student's chat and quiz results,
+chapter by chapter.
 
-This application will serve as a supplement to my online music courses, starting Fall 2024.
+I built this Go API to supplement the online music courses I taught in Fall 2024.
+The [Next.js frontend](#frontend) lives in a separate repo. The app is no longer
+deployed, but everything here runs locally.
 
-## MVP requirements
+## How it works
 
-- api deployed to EC2
-- authentication/authorization will be handled by Cognito
-- Postgres setup with RDS
-- Possibly Lambdas used from triggers between Cognito and the API or RDS
+1. **Chat with the chapter.** The student chats with the tutor over a WebSocket.
+   Each message is embedded and run as a similarity search in pgvector, filtered to
+   the current book and chapter, and the matching passages are passed to the LLM as
+   context. The reply streams back token by token.
+2. **Earn the chat credit.** After each exchange, a background goroutine collects the
+   student's questions and asks the LLM to grade how well they engage with the
+   reading. The grading uses tool calling, so the score comes back as structured JSON.
+   A passing score unlocks the quiz.
+3. **Take a quiz built from the conversation.** Quiz questions are generated from the
+   student's chat history plus the relevant chapter passages, so each student gets
+   questions about what they actually discussed.
+4. **Get graded with feedback.** Answers are assessed against the chapter text, with a
+   score and written feedback for each question.
+5. **Teacher review.** Teachers see results across a course, drill into a chapter, and
+   read an individual student's conversations and quiz answers.
 
-- students must be able to...
-- login
-- find their course textbook
-- find and select the current chapter
-- ask questions about the current chapter, for their understanding
-- have ai generate and grade quizzes based on the chapter reading material and/or music
-- students can access and play musical examples from the app
-- ai in the background to assess the student/ai interactions to insure grading fairness
-approprateness of the chat, and quality of student questions and interactions
+## Architecture
 
-### Other wishlist requirements
-
-- integration with instructure api, to automate grade updates
-- other ideas that can allow students to experience/learn the material more activly
-
-# Getting Started
-
-Make sure to turn off postgres if you have it running locally or else change the 
-port info below. I believe it is ```hostport:containerport```
-
-1. Clone the project
-2. Install Docker
-3. Pull the postgres/pgvector image from Dockerhub
-```docker pull pgvector/pgvector:pg16```
-4. In the terminal, list all images. You should see only one. 
-```docker image ls```
-5. Copy the id onto your clip board. It should be on the left and look something like 
-ceb82277bed1
-6. This command will create and run the 'image' and create a new 'container' running in the
-background on your computer. The container is basically a mini Linux OS running Postgres. 
-```
-docker run --name music-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=music
--p 5432:5432 -d <the-id-from-your-clipboard>
-``` 
-7. You can list the running containers with 
-```docker ps```
-8. If you want to trash it ever, do ```docker ps```, then
-```
-docker stop <id-of-container>
-docker rm <id-of-container>
-```
-9. The database is now setup. If for any reason you want to interact with the db directly,
-the command below will sign you into the container and into the database.
-You can type ```exit``` to exit the container or ```\q```
-```psql -h localhost -U postgres -d music```
-or use the Makefile
-```
-make db/connect
+```mermaid
+flowchart LR
+    FE[Next.js frontend] -- REST + cookies --> API
+    FE -- WebSocket chat --> API
+    subgraph API[Go API]
+        R[httprouter + middleware<br/>CORS, auth, roles, panic recovery]
+        H[handlers: chat, quiz, teacher, auth]
+        AI[internal/ai<br/>langchaingo]
+    end
+    R --> H --> AI
+    H --> PG[(Postgres<br/>+ pgvector)]
+    AI -- similarity search --> PG
+    AI -- chat, embeddings, tool calls --> OAI[OpenAI]
+    R -- verify JWTs via JWKS --> COG[AWS Cognito]
+    H -- login, sign-up, password reset --> COG
 ```
 
-## Install Go Dependancies
-1. I believe ```go get``` will install everything you need.
+| Area | Details |
+| --- | --- |
+| Language | Go, `net/http` with `julienschmidt/httprouter` |
+| Data | Postgres 16 with `pgvector` and `citext`, accessed with `pgx` and versioned SQL migrations (`golang-migrate`) |
+| AI | OpenAI `gpt-4o` and `gpt-4o-mini` through `langchaingo`; `text-embedding-3-large` embeddings; tool calling for structured grading |
+| Auth | AWS Cognito; the API verifies ID tokens against Cognito's JWKS (cached), stores tokens in cookies, and refreshes them transparently in middleware; `student` and `teacher` roles |
+| Realtime | `gorilla/websocket` for streaming chat |
+| Deployment (when it was live) | A single EC2 instance with systemd and Caddy for TLS; see `remote/` |
 
-## Fire up the server
-
-1. in the root directory, this command will show you the flags that I've setup.
-```go run ./cmd/api -help```
-2. Seed the db
-```go run ./cmd/api -seed_embeddings=true```
-3. Run migrations (you'll need to have 'migrate' installed. You can get it via Homebrew.
-```https://formulae.brew.sh/formula/golang-migrate```
-These commands do the same thing...
-```migrate -seq -ext=.sql -dir=./migrations postgres://postgres:password@localhost:5432/music\?sslmode=disable up```
-or use the Makefile script
-```make db/up```
-4. Start the server
-```go run ./cmd/api/``` or use ```go run/front``` if you are using the NextJS frontend
-The logs should tell you the rest!
-
-## Create a test user
-
-When the server is running, send a curl request with the new user info. 
+## Project layout
 
 ```
-curl -X POST http://localhost:8080/v1/register/users \
--H "Content-Type: application/json" \
--d '[
-  {
-    "cognito_sub": "",
-    "first_name": "",
-    "last_name": "",
-    "email": "",
-    "course_id": 1
-  }
-]'
+cmd/api/          HTTP server: routes, middleware, handlers, auth
+internal/ai/      LLM chat, quiz generation, and grading
+internal/data/    Postgres models
+internal/seed/    demo data and the book embedding pipeline
+internal/canvas/  Canvas LMS API client for syncing grades (work in progress, not yet wired in)
+migrations/       SQL migrations
+books/            chapter text, one file per chapter
+dummy_client/     a minimal HTML client for testing login without the frontend
+remote/           server setup script, systemd unit, and Caddyfile
 ```
-### .env file
 
-Copy `.env.example` to `.env` and fill in your own values.
-Optionally, you can also set ```DEBUG=1``` if you want to see some debug logs from the server.
+## Running locally
 
-## Sample data
+You'll need Go 1.22+, Docker, and an OpenAI API key. Logging in also requires a
+Cognito user pool.
 
-The only book included is *Alice's Adventures in Wonderland* by Lewis Carroll, from
-[Project Gutenberg](https://www.gutenberg.org/ebooks/11) (public domain). Each chapter is a
-text file in `books/`, named `title-author-edition-chapter.txt`.
-
+```sh
+cp .env.example .env   # then add your OPENAI key (and Cognito ids, to log in)
+make up                # start Postgres + pgvector in Docker and run the migrations
+make seed              # demo users, books, courses, and the book embeddings
+make run/front         # start the API on :8080 with CORS open to the local frontend
 ```
-go run ./cmd/api -seed_all=true         # demo users, the book, chapters, and a course
-go run ./cmd/api -seed_embeddings=true  # chunk and embed books/ into pgvector (uses OpenAI)
+
+Run `make help` to see every target.
+
+### Logging in
+
+Auth goes through Cognito, so you'll need your own user pool and app client (set
+`USER_POOL_ID` and `USER_POOL_CLIENT_ID`). The seeded demo users have random
+`cognito_sub` values; to log in as one, set its `cognito_sub` to the `sub` of a user
+in your pool. Make the teacher a teacher with
+`UPDATE users SET role = 'teacher' WHERE email = 'teacher@example.com';`.
+
+## Tests
+
+```sh
+make test               # unit tests, no services needed (this is what CI runs)
+make test/integration   # also runs tests that need Postgres, OpenAI, Cognito, and Canvas
 ```
+
+## Sample books
+
+The real courses used copyrighted textbooks, which aren't included. The demo uses two
+public domain books from [Project Gutenberg](https://www.gutenberg.org):
+
+- *Alice's Adventures in Wonderland* by Lewis Carroll
+- *Life of Chopin* by Franz Liszt, translated by M. Walker Cook
+
+Each chapter is a text file in `books/<title>/`, named
+`title-author-edition-chapter.txt`. The embedding seeder parses that name into the
+metadata used to filter search results by book and chapter. To add a book, add its
+files there and its chapters in `internal/seed/seed_chapters.go`.
+
+## Frontend
+
+The Next.js frontend lives in a separate repo.

@@ -38,44 +38,7 @@ func (app *application) loggedIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
-
-	env := app.config.env
-	var sameSite http.SameSite
-	var secure bool
-	var httpOnly bool
-	var domain string
-
-	if env == "production" {
-		secure = true
-		httpOnly = true
-		sameSite = http.SameSiteNoneMode
-		domain = "example.com"
-	} else {
-		sameSite = http.SameSiteLaxMode
-		// set domain to anything?
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "music-id",
-		Value:    "",
-		Path:     "/",
-		Domain:   domain,
-		HttpOnly: httpOnly,
-		Secure:   secure, // local dev
-		SameSite: sameSite,
-		Expires:  time.Now().Add(-1 * time.Hour),
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "music-refresh",
-		Value:    "",
-		Path:     "/",
-		Domain:   domain,
-		HttpOnly: httpOnly,
-		Secure:   secure, // local dev
-		SameSite: sameSite,
-		Expires:  time.Now().Add(-1 * time.Hour),
-	})
+	app.clearAuthCookies(w)
 
 	// TODO: remove from server store as well...
 	app.writeJSON(w, http.StatusOK, envelope{"logout": map[string]string{"status": "true"}}, nil)
@@ -154,11 +117,11 @@ func (app *application) listActivities(w http.ResponseWriter, r *http.Request) {
 	if len(activities) == 0 {
 		err := app.models.UserActivity.CreateActivitiesForUser(r.Context(), userID, bookID, []int64{chapterID})
 		if err != nil {
-			app.serverErrorResponse(w, r, fmt.Errorf("unable to create activites for userID: %d, bookID: %d, chapterIDs: %d", userID, bookID, chapterID))
+			app.serverErrorResponse(w, r, fmt.Errorf("unable to create activities for userID: %d, bookID: %d, chapterIDs: %d", userID, bookID, chapterID))
 		}
 		activities, err = app.models.UserActivity.GetActivitiesByUserBookChapter(ctx, userID, bookID, chapterID)
 		if err != nil {
-			app.serverErrorResponse(w, r, errors.New("couldn't get these activites after creation"))
+			app.serverErrorResponse(w, r, errors.New("couldn't get these activities after creation"))
 		}
 	}
 
