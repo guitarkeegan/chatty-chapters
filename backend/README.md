@@ -1,51 +1,9 @@
-# Music Class Tutor
+# Chatty Chapters API
 
-An AI reading tutor for college music courses. Students pick the chapter they're
-reading and chat with a tutor that answers from the textbook itself. Once they've
-asked good enough questions, they take a short quiz generated from their own
-conversation. Teachers get a dashboard of every student's chat and quiz results,
-chapter by chapter.
-
-I built this Go API to supplement the online music courses I taught in Fall 2024.
-The [Next.js frontend](#frontend) lives in a separate repo. The app is no longer
-deployed, but everything here runs locally.
-
-## How it works
-
-1. **Chat with the chapter.** The student chats with the tutor over a WebSocket.
-   Each message is embedded and run as a similarity search in pgvector, filtered to
-   the current book and chapter, and the matching passages are passed to the LLM as
-   context. The reply streams back token by token.
-2. **Earn the chat credit.** After each exchange, a background goroutine collects the
-   student's questions and asks the LLM to grade how well they engage with the
-   reading. The grading uses tool calling, so the score comes back as structured JSON.
-   A passing score unlocks the quiz.
-3. **Take a quiz built from the conversation.** Quiz questions are generated from the
-   student's chat history plus the relevant chapter passages, so each student gets
-   questions about what they actually discussed.
-4. **Get graded with feedback.** Answers are assessed against the chapter text, with a
-   score and written feedback for each question.
-5. **Teacher review.** Teachers see results across a course, drill into a chapter, and
-   read an individual student's conversations and quiz answers.
+The Go API behind Chatty Chapters. See the [root README](../README.md) for what the
+app does and how the pieces fit together.
 
 ## Architecture
-
-```mermaid
-flowchart LR
-    FE[Next.js frontend] -- REST + cookies --> API
-    FE -- WebSocket chat --> API
-    subgraph API[Go API]
-        R[httprouter + middleware<br/>CORS, auth, roles, panic recovery]
-        H[handlers: chat, quiz, teacher, auth]
-        AI[internal/ai<br/>langchaingo]
-    end
-    R --> H --> AI
-    H --> PG[(Postgres<br/>+ pgvector)]
-    AI -- similarity search --> PG
-    AI -- chat, embeddings, tool calls --> OAI[OpenAI]
-    R -- verify JWTs via JWKS --> COG[AWS Cognito]
-    H -- login, sign-up, password reset --> COG
-```
 
 | Area | Details |
 | --- | --- |
@@ -114,4 +72,4 @@ files there and its chapters in `internal/seed/seed_chapters.go`.
 
 ## Frontend
 
-The Next.js frontend lives in a separate repo.
+The Next.js frontend is in [`../frontend`](../frontend).
