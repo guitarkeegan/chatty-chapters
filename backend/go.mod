@@ -1,4 +1,4 @@
-module github.com/guitarkeegan/music-class-tutor
+module github.com/guitarkeegan/chatty-chapters/backend
 
 go 1.22.0
 

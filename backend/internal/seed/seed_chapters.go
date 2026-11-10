@@ -1,7 +1,7 @@
 package seed
 
 import (
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
 )
 
 // seedBook is a public domain book from Project Gutenberg whose chapter text

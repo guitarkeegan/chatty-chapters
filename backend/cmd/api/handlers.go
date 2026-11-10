@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/google/uuid"
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )

@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gorilla/websocket"
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/vectorstores"
 	"golang.org/x/text/cases"

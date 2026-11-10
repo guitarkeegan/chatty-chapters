@@ -21,9 +21,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lestrrat-go/jwx/jwk"
 
-	"github.com/guitarkeegan/music-class-tutor/internal/ai"
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
-	"github.com/guitarkeegan/music-class-tutor/internal/seed"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/ai"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/seed"
 	"github.com/joho/godotenv"
 )
 

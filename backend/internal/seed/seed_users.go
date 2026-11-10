@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
 )
 
 const (

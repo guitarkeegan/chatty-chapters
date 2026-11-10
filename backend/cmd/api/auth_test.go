@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/guitarkeegan/music-class-tutor/internal/ai"
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/ai"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
 	"github.com/joho/godotenv"
 )
 

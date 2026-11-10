@@ -14,8 +14,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/google/uuid"
-	"github.com/guitarkeegan/music-class-tutor/internal/ai"
-	"github.com/guitarkeegan/music-class-tutor/internal/data"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/ai"
+	"github.com/guitarkeegan/chatty-chapters/backend/internal/data"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
